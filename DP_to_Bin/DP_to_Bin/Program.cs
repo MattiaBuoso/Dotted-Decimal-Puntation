@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -12,7 +12,22 @@ namespace DP_to_Bin
     {
         bool[] ConvertMethod.Convert_DP_to_Bin(int[] dp)
         {
+            // Creo un array di bool di lunghezza 32 per rappresentare l'indirizzo IP in binario
             bool[] boolIP = new bool[32];
+            int index = 0;
+
+            // Itero su ciascun ottetto dell'indirizzo IP
+            foreach (int octet in dp)
+            {
+                // Converto ciascun ottetto in rappresentazione binaria a 8 bit
+                for (int i = 7; i >= 0; i--)
+                {
+                    // Utilizzo operazioni bit a bit per ottenere ciascun bit dell'ottetto
+                    // e memorizzalo nell'array di bool
+                    boolIP[index] = (octet & (1 << i)) != 0;
+                    index++;
+                }
+            }
 
             return boolIP;
         }
@@ -38,9 +53,30 @@ namespace DP_to_Bin
 
         static void Main(string[] args)
         {
-            int[] ip = new int[4];
+            int[] dottetPuntation = new int[4];
 
-            ip = GetOctet();
+            dottetPuntation = GetOctet();
+
+            bool[] binaryIP = new bool[32];
+
+            binaryIP = 
+
+            // Stampa l'indirizzo IP binario
+            Console.WriteLine("Indirizzo IP binario:");
+            for (int i = 0; i < dottetPuntation.Length; i++)
+            {
+                Console.Write(dottetPuntation[i] ? "1" : "0");
+                if ((i + 1) % 8 == 0)
+                    Console.Write(" "); // Spazio ogni 8 bit per facilitare la lettura
+            }
+
+
+
+
+
+            PrintIP(dottetPuntation);
+
+            Console.ReadKey();
 
         }
 
@@ -61,6 +97,14 @@ namespace DP_to_Bin
             }
 
             return ip; 
+        }
+
+        static void PrintIP(int[] ip)
+        {
+            foreach (int octect in ip)
+            {
+                Console.Write(octect + ".");
+            }
         }
     }
 }
