@@ -22,7 +22,7 @@ namespace DP_to_Bin
                 // Converto ciascun ottetto in rappresentazione binaria a 8 bit
                 for (int i = 7; i >= 0; i--)
                 {
-                    // Utilizzo operazioni bit a bit per ottenere ciascun bit dell'ottetto
+                    // Utilizzo un' operazione bit a bit per ottenere ciascun bit dell'ottetto
                     // e memorizzalo nell'array di bool
                     boolIP[index] = (octet & (1 << i)) != 0;
                     index++;
