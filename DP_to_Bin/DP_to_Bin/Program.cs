@@ -8,10 +8,75 @@ using System.Threading.Tasks;
 
 namespace DP_to_Bin
 {
-    internal class Program : ConvertMethod
+    internal class Program
     {
-        bool[] ConvertMethod.Convert_DP_to_Bin(int[] dp)
+        //Author: Buoso Mattia 4E
+
+        static void Main(string[] args)
         {
+            string address;
+            int[] dottedPuntation = new int[4]; 
+            int intAddressFromDP = 0;
+            int intAddressFromBin = 0;
+            int[] dottedDecimalFromBin;
+
+            Console.WriteLine("Insert the IP address:\n");
+            address = Console.ReadLine();
+
+            dottedPuntation = GetOctet(address);
+
+            bool[] binaryIP = new bool[32];
+
+            binaryIP = Convert_DP_to_Bin(dottedPuntation);
+
+            intAddressFromDP = Convert_DP_to_Int(dottedPuntation);
+
+            intAddressFromBin = Convert_Bin_to_Int(binaryIP);
+
+
+            Console.WriteLine("Decimal IP from a Dotted: " + intAddressFromDP);
+
+            Console.WriteLine("Decimal IP from a Binary: " + intAddressFromBin);
+
+            Console.WriteLine("Dotted Decimal IP from Binary: ");
+            dottedDecimalFromBin = Convert_Bin_to_DP(binaryIP);
+
+            foreach (var octect in dottedDecimalFromBin) 
+            {
+                Console.Write(octect.ToString() + ' ');
+            }
+
+            Console.ReadKey();
+        }
+
+        static int[] GetOctet(string address)
+        {
+            string[] octetStrings = address.Split('.');
+            int[] ip = new int[4];
+
+            if (octetStrings.Length != 4)
+            {
+                throw new ArgumentException("Invalid IP address format. The address should have 4 octets.");
+            }
+
+            for (int i = 0; i < octetStrings.Length; i++)
+            {
+                if (!int.TryParse(octetStrings[i], out ip[i]))
+                {
+                    throw new ArgumentException("Invalid octet value. Octet should be a valid integer between 0 and 255.");
+                }
+
+                if (ip[i] < 0 || ip[i] > 255)
+                {
+                    throw new ArgumentException("Invalid octet value. Octet should be a valid integer between 0 and 255.");
+                }
+            }
+
+            return ip;
+        }
+
+         static bool[] Convert_DP_to_Bin(int[] dp)
+         {
             // Creo un array di bool di lunghezza 32 per rappresentare l'indirizzo IP in binario
             bool[] boolIP = new bool[32];
             int index = 0;
@@ -24,7 +89,7 @@ namespace DP_to_Bin
                 {
                     // Utilizzo un' operazione bit a bit per ottenere ciascun bit dell'ottetto
                     // e memorizzalo nell'array di bool
-                    boolIP[index] = (octet & (1 << i)) != 0;
+                    boolIP[index] = (octet & (1 << i)) != 0; // << operatore di leftshift per 'i'
                     index++;
                 }
             }
@@ -32,79 +97,55 @@ namespace DP_to_Bin
             return boolIP;
         }
 
-        int ConvertMethod.Convert_DP_to_Int(int[] dp)
+        static int Convert_DP_to_Int(int[] dp)
         {
-            int a = 0;
-            return a;
-        }
-
-        int ConvertMethod.Convert_Bin_to_Int(bool[] bn)
-        {
-            int a = 0;  
-            return a;
-        }
-
-        int[] ConvertMethod.Convert_Bin_to_DP(bool[] b)
-        {
-            int a = 0;  
-            return new int[32];
-        }
-
-
-        static void Main(string[] args)
-        {
-            int[] dottetPuntation = new int[4];
-
-            dottetPuntation = GetOctet();
-
-            bool[] binaryIP = new bool[32];
-
-            binaryIP = 
-
-            // Stampa l'indirizzo IP binario
-            Console.WriteLine("Indirizzo IP binario:");
-            for (int i = 0; i < dottetPuntation.Length; i++)
+            int result = 0;
+ 
+            // Calcolo il risultato come l'elevamento a potenza dei quattro ottetti in serie
+            for (int i = 0; i < 4; i++)
             {
-                Console.Write(dottetPuntation[i] ? "1" : "0");
-                if ((i + 1) % 8 == 0)
-                    Console.Write(" "); // Spazio ogni 8 bit per facilitare la lettura
+                result += dp[i] * (int)Math.Pow(256, 3 - i); //converto esplicitamente perche' mathpow restituisce double
             }
 
-
-
-
-
-            PrintIP(dottetPuntation);
-
-            Console.ReadKey();
-
+            return result & 0x7FFFFFFF;  // Garantisce che il risultato sia positivo 
         }
 
-        static int[] GetOctet()
+        static int Convert_Bin_to_Int(bool[] bn)
         {
-            int[] ip = new int[4];
-            
-            for(int i = 0; i<4; i++)
+            int result = 0;
+
+            for (int i = bn.Length - 1; i >= 0; i--)
             {
-                try
+                if (bn[i])
                 {
-                    ip[i] = Convert.ToByte(Console.ReadLine());
-                }
-                catch
-                {
-                    throw new Exception("Invalid Element");
+                    // Se il bit è vero (1), aggiungi la potenza di 2 corrispondente
+                    result += (int)Math.Pow(2, bn.Length - 1 - i);
                 }
             }
 
-            return ip; 
+            return result & 0x7FFFFFFF;  // Garantisce che il risultato sia positivo (operazione di AND dove 0x7FFFFFFF rappresenta il massimo valore positivo)
         }
 
-        static void PrintIP(int[] ip)
+        static int[] Convert_Bin_to_DP(bool[] b)
         {
-            foreach (int octect in ip)
+            int index = 0;
+            int[] dottedDecimalArray = new int[4];
+
+            for (int i = 0;i<b.Length; i+= 8) //divido in gruppi da 8
             {
-                Console.Write(octect + ".");
+                int octectValue = 0;
+
+                for (int j = 0; j < 8; j++) 
+                {
+                    octectValue += (b[i + j] ? 1 : 0) << (7 - j); // sposta il bit al suo posizionamento corretto nell'ottetto. Se il bit è true (1), lo sposta nella posizione corretta (da sinistra verso destra) e lo aggiunge all'octetValue.
+                }
+
+                dottedDecimalArray[index] = octectValue;
+                index++;
             }
+
+
+            return dottedDecimalArray;
         }
     }
 }
